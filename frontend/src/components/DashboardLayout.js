@@ -87,10 +87,10 @@ const DashboardLayout = ({ children }) => {
               data-testid="logout-btn"
               onClick={handleLogout}
               variant="ghost"
-              className="w-full justify-start font-mono text-sm text-gray-400 hover:text-white"
+              className="w-full justify-start font-mono text-sm text-gray-400 hover:text-white rtl:flex-row-reverse"
             >
-              <LogOut className="w-5 h-5 mr-3" strokeWidth={1.5} />
-              Logout
+              <LogOut className="w-5 h-5 mr-3 rtl:mr-0 rtl:ml-3" strokeWidth={1.5} />
+              {t('nav.logout')}
             </Button>
           </div>
         </div>
