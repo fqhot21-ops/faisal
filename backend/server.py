@@ -434,6 +434,54 @@ async def delete_user(user_id: str, current_user: User = Depends(get_current_use
     
     return {"message": "User deleted successfully"}
 
+# Language & Profile Endpoints
+class LanguageUpdate(BaseModel):
+    preferred_language: str
+
+@api_router.put("/user/language")
+async def update_language(lang_update: LanguageUpdate, current_user: User = Depends(get_current_user)):
+    if lang_update.preferred_language not in ['en', 'ar']:
+        raise HTTPException(status_code=400, detail="Invalid language. Must be 'en' or 'ar'")
+    
+    await db.users.update_one(
+        {"id": current_user.id},
+        {"$set": {"preferred_language": lang_update.preferred_language}}
+    )
+    
+    return {"message": "Language updated successfully", "language": lang_update.preferred_language}
+
+# PDF Report Generation
+@api_router.get("/scan/{scan_id}/pdf")
+async def generate_pdf_report(scan_id: str, language: Optional[str] = None, current_user: User = Depends(get_current_user)):
+    # Fetch scan data
+    scan = await db.scans.find_one({"id": scan_id, "user_id": current_user.id}, {"_id": 0})
+    
+    if not scan:
+        raise HTTPException(status_code=404, detail="Scan not found")
+    
+    # Use specified language or user's preferred language
+    if not language:
+        user_data = await db.users.find_one({"id": current_user.id}, {"_id": 0})
+        language = user_data.get('preferred_language', 'en')
+    
+    if language not in ['en', 'ar']:
+        language = 'en'
+    
+    # Generate PDF
+    try:
+        pdf_buffer = create_pdf_report(scan, language=language)
+        
+        filename = f"SecureVision_Report_{scan_id[:8]}.pdf"
+        
+        return StreamingResponse(
+            pdf_buffer,
+            media_type="application/pdf",
+            headers={"Content-Disposition": f"attachment; filename={filename}"}
+        )
+    except Exception as e:
+        logger.error(f"PDF generation error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to generate PDF report")
+
 # Include router
 app.include_router(api_router)
 
