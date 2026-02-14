@@ -1,11 +1,14 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Shield, Lock, Activity, TrendingUp } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { motion } from 'framer-motion';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 
 const Landing = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
     <div className="min-h-screen bg-cyber-black relative overflow-hidden">
@@ -20,25 +23,26 @@ const Landing = () => {
       {/* Hero Section */}
       <div className="relative z-10 container mx-auto px-4">
         <nav className="flex items-center justify-between py-8">
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3 rtl:space-x-reverse">
             <Shield className="w-8 h-8 text-cyber-cyan" strokeWidth={1.5} />
-            <span className="text-2xl font-mono font-bold tracking-tighter">SecureVision AI</span>
+            <span className="text-2xl font-mono font-bold tracking-tighter">{t('common.appName')}</span>
           </div>
-          <div className="space-x-4">
+          <div className="flex items-center space-x-4 rtl:space-x-reverse">
+            <LanguageSwitcher />
             <Button
               data-testid="nav-login-btn"
               variant="ghost"
               className="font-mono uppercase text-cyber-cyan hover:bg-cyber-cyan/10"
               onClick={() => navigate('/login')}
             >
-              Login
+              {t('nav.login')}
             </Button>
             <Button
               data-testid="nav-register-btn"
               className="font-mono uppercase bg-cyber-cyan text-black hover:bg-cyber-cyan/80"
               onClick={() => navigate('/register')}
             >
-              Get Started
+              {t('nav.getStarted')}
             </Button>
           </div>
         </nav>
@@ -50,12 +54,12 @@ const Landing = () => {
           className="mt-32 mb-20 text-center"
         >
           <h1 className="text-5xl md:text-7xl font-mono font-bold tracking-tighter leading-none mb-8">
-            <span className="text-cyber-cyan">AI-Powered</span>
+            <span className="text-cyber-cyan">{t('landing.hero.title')}</span>
             <br />
-            Cyber Threat Detection
+            {t('landing.hero.subtitle')}
           </h1>
           <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-12 font-sans">
-            Advanced threat intelligence powered by GPT-5.2. Analyze URLs, IP addresses, and files in real-time with enterprise-grade security.
+            {t('landing.hero.description')}
           </p>
           <Button
             data-testid="hero-cta-btn"
@@ -63,7 +67,7 @@ const Landing = () => {
             className="font-mono uppercase text-lg px-8 py-6 bg-cyber-cyan text-black hover:bg-cyber-cyan/80 neon-glow"
             onClick={() => navigate('/register')}
           >
-            Start Scanning
+            {t('landing.hero.cta')}
           </Button>
         </motion.div>
 
@@ -72,20 +76,20 @@ const Landing = () => {
           {[
             {
               icon: <Shield className="w-8 h-8" strokeWidth={1.5} />,
-              title: 'URL Threat Analysis',
-              description: 'Real-time URL scanning with AI-powered risk scoring and detailed threat explanations',
+              title: t('landing.features.urlAnalysis.title'),
+              description: t('landing.features.urlAnalysis.description'),
               color: 'cyan'
             },
             {
               icon: <Activity className="w-8 h-8" strokeWidth={1.5} />,
-              title: 'IP Reputation Check',
-              description: 'Comprehensive IP analysis with geolocation tracking and abuse score detection',
+              title: t('landing.features.ipCheck.title'),
+              description: t('landing.features.ipCheck.description'),
               color: 'purple'
             },
             {
               icon: <Lock className="w-8 h-8" strokeWidth={1.5} />,
-              title: 'File Scanner',
-              description: 'Advanced malware detection using SHA-256 hashing and AI classification',
+              title: t('landing.features.fileScanner.title'),
+              description: t('landing.features.fileScanner.description'),
               color: 'green'
             }
           ].map((feature, idx) => (
