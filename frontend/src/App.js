@@ -76,25 +76,31 @@ function AppRoutes() {
 
 function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <div className="App">
-          <AppRoutes />
-          <Toaster 
-            theme="dark"
-            position="top-right"
-            toastOptions={{
-              style: {
-                background: '#121214',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                color: '#fff',
-                fontFamily: 'JetBrains Mono, monospace'
-              }
-            }}
-          />
-        </div>
-      </AuthProvider>
-    </BrowserRouter>
+    <Suspense fallback={
+      <div className="min-h-screen bg-cyber-black flex items-center justify-center">
+        <div className="text-cyber-cyan font-mono">Loading...</div>
+      </div>
+    }>
+      <BrowserRouter>
+        <AuthProvider>
+          <div className="App">
+            <AppRoutes />
+            <Toaster 
+              theme="dark"
+              position="top-right"
+              toastOptions={{
+                style: {
+                  background: '#121214',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  color: '#fff',
+                  fontFamily: 'JetBrains Mono, monospace'
+                }
+              }}
+            />
+          </div>
+        </AuthProvider>
+      </BrowserRouter>
+    </Suspense>
   );
 }
 
