@@ -1,0 +1,206 @@
+{
+  "project_name": "SecureVision AI",
+  "design_philosophy": {
+    "identity": "E1 - The Anti-AI Designer",
+    "core_principles": [
+      "Fusion over Imitation: Cyber-punk meets Enterprise Data",
+      "Emotion First: The UI must feel 'Alive' and 'Watchful'",
+      "Content is King: Data is the hero, UI is the HUD",
+      "Negative Space: Use black void as a canvas",
+      "Contrast: High-visibility neon against deep matte black"
+    ],
+    "anti_patterns": [
+      "No Teal (#1B93A4) for dashboards",
+      "No Space Grotesk font",
+      "No generic centered layouts",
+      "No 'Inter' for headings",
+      "No gradient overload (>20%)"
+    ]
+  },
+  "typography": {
+    "font_family": {
+      "headings": {
+        "name": "JetBrains Mono",
+        "class": "font-mono",
+        "weights": ["700", "800"],
+        "cdn": "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap"
+      },
+      "body": {
+        "name": "Manrope",
+        "class": "font-sans",
+        "weights": ["400", "500", "600"],
+        "cdn": "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&display=swap"
+      }
+    },
+    "scale": {
+      "h1": "text-5xl md:text-7xl font-bold tracking-tighter leading-none",
+      "h2": "text-4xl md:text-5xl font-bold tracking-tight",
+      "h3": "text-2xl md:text-3xl font-bold tracking-tight",
+      "body_lg": "text-lg leading-relaxed text-muted-foreground",
+      "body": "text-base leading-relaxed text-muted-foreground",
+      "label": "text-xs font-mono uppercase tracking-widest text-muted-foreground"
+    }
+  },
+  "colors": {
+    "theme": "dark",
+    "palette": {
+      "background": {
+        "default": "#0A0A0B",
+        "paper": "#121214",
+        "subtle": "#18181B"
+      },
+      "primary": {
+        "default": "#00F0FF",
+        "foreground": "#000000",
+        "hover": "#00C2CC"
+      },
+      "secondary": {
+        "default": "#7000FF",
+        "foreground": "#FFFFFF",
+        "hover": "#5A00CC"
+      },
+      "accent": {
+        "cyan": "#00F0FF",
+        "purple": "#7000FF",
+        "green": "#00FF94",
+        "red": "#FF2E2E",
+        "yellow": "#FFE600"
+      },
+      "status": {
+        "safe": "#00FF94",
+        "suspicious": "#FFE600",
+        "malicious": "#FF2E2E"
+      },
+      "border": {
+        "default": "#27272A",
+        "active": "#00F0FF"
+      }
+    },
+    "tailwind_config_extension": {
+      "colors": {
+        "cyber": {
+          "black": "#0A0A0B",
+          "gray": "#121214",
+          "cyan": "#00F0FF",
+          "purple": "#7000FF",
+          "green": "#00FF94",
+          "red": "#FF2E2E"
+        }
+      },
+      "backgroundImage": {
+        "grid-pattern": "linear-gradient(to right, #18181b 1px, transparent 1px), linear-gradient(to bottom, #18181b 1px, transparent 1px)",
+        "scanline": "linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06))"
+      }
+    }
+  },
+  "layout_strategies": {
+    "marketing": {
+      "grid_mode": "MODE A: TETRIS",
+      "spacing": "Generous (p-8 to p-32)",
+      "container": "container mx-auto px-4 md:px-8",
+      "alignment": "Asymmetrical, Tension-based"
+    },
+    "dashboard": {
+      "grid_mode": "MODE B: HIGH DENSITY",
+      "spacing": "Compact (p-4 to p-6)",
+      "gap": "gap-4",
+      "container": "w-full h-screen overflow-hidden flex flex-col"
+    },
+    "bento_grid_classes": "grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 auto-rows-[minmax(180px,auto)]"
+  },
+  "components": {
+    "ui_library": "shadcn/ui",
+    "customizations": [
+      {
+        "component": "Card",
+        "style": "bg-cyber-gray/50 backdrop-blur-md border border-white/10 hover:border-cyber-cyan/50 transition-colors duration-300"
+      },
+      {
+        "component": "Button",
+        "style": "rounded-none uppercase font-mono tracking-wider font-bold"
+      },
+      {
+        "component": "Badge",
+        "style": "rounded-none px-2 py-0.5 font-mono text-xs uppercase border border-current bg-transparent"
+      },
+      {
+        "component": "Input",
+        "style": "bg-black/50 border-white/20 focus:border-cyber-cyan rounded-none font-mono"
+      }
+    ],
+    "visual_enhancers": {
+      "glassmorphism": "backdrop-blur-xl bg-black/40 border border-white/10",
+      "neon_glow": "shadow-[0_0_20px_rgba(0,240,255,0.3)]",
+      "grid_bg": "bg-grid-pattern bg-[size:4rem_4rem] mask-image-gradient"
+    }
+  },
+  "assets": {
+    "icons": {
+      "library": "lucide-react",
+      "style": "stroke-1.5"
+    },
+    "images": {
+      "hero_background": {
+        "url": "https://images.unsplash.com/photo-1762279389083-abf71f22d338?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxOTB8MHwxfHNlYXJjaHwxfHxjeWJlcnNlY3VyaXR5JTIwbmV0d29yayUyMGFic3RyYWN0JTIwYmx1ZXxlbnwwfHx8fDE3NzEwODQ3NjR8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Abstract cyber network lines",
+        "usage": "Landing page hero background with overlay"
+      },
+      "feature_server": {
+        "url": "https://images.pexels.com/photos/17323801/pexels-photo-17323801.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Modern server room with blue light",
+        "usage": "Infrastructure/About section"
+      },
+      "analyst_team": {
+        "url": "https://images.unsplash.com/photo-1737408011230-995d7a7aca1b?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA4Mzl8MHwxfHNlYXJjaHwyfHxzZWN1cml0eSUyMGFuYWx5c3QlMjB3b3JraW5nJTIwbXVsdGlwbGUlMjBtb25pdG9yc3xlbnwwfHx8fDE3NzEwODQ3NjV8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Security analyst at work",
+        "usage": "Team or Careers section"
+      }
+    }
+  },
+  "animations": {
+    "library": "framer-motion",
+    "presets": {
+      "fade_in": {
+        "initial": { "opacity": 0, "y": 20 },
+        "animate": { "opacity": 1, "y": 0 },
+        "transition": { "duration": 0.5 }
+      },
+      "stagger_container": {
+        "animate": "visible",
+        "initial": "hidden",
+        "variants": {
+          "visible": { "transition": { "staggerChildren": 0.1 } }
+        }
+      },
+      "scan_line": {
+        "animate": { "y": ["0%", "100%"] },
+        "transition": { "duration": 2, "repeat": "Infinity", "ease": "linear" }
+      }
+    }
+  },
+  "accessibility": {
+    "contrast_check": "Ensure neon text has sufficient contrast against black backgrounds. Use shading or outlines if needed.",
+    "reduced_motion": "Respect prefers-reduced-motion media query for scanlines and glitch effects.",
+    "aria_labels": "All icon-only buttons must have aria-labels."
+  },
+  "instructions_to_main_agent": [
+    "1. INSTALL FONTS: Add JetBrains Mono and Manrope to public/index.html or import in CSS.",
+    "2. SETUP TAILWIND: Update tailwind.config.js with the 'colors' and 'backgroundImage' provided in this JSON.",
+    "3. GLOBAL CSS: Add the 'scanline' animation class to index.css if not using Tailwind utilities directly.",
+    "4. COMPONENTS: When building the dashboard, use the 'High Density' grid strategy. Do not leave gaps.",
+    "5. MARKER: Add data-testid to all interactive elements.",
+    "6. CHARTS: Use Recharts with the custom neon palette (Cyan, Purple, Green, Red).",
+    "7. MAPS: Use a dark-themed map (e.g., react-simple-maps with custom fill) for the IP geolocation features.",
+    "8. THEME: Default to DARK mode. Do not create a light mode unless explicitly asked (Cybersecurity apps are dark by default).",
+    "9. ICONS: Use Lucide React icons. Stroke width 1.5px for a clean technical look."
+  ],
+  "UNIVERSAL_GUIDELINES": [
+    "Do not use gradients for main backgrounds; use them for borders or accents only.",
+    "Avoid 'Inter' for headings. Use JetBrains Mono.",
+    "Use 2-3x more padding than usual for Marketing pages.",
+    "Micro-interactions: Buttons should glow or glitch on hover.",
+    "Never use pure black (#000000) for large surfaces; use #0A0A0B.",
+    "Every page must tell a story. The Dashboard is the 'Command Center'.",
+    "Use 'sonner' for toast notifications."
+  ]
+}
