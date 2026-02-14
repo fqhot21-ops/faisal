@@ -48,6 +48,7 @@ class User(BaseModel):
     email: EmailStr
     full_name: str
     role: str = "user"
+    preferred_language: str = "en"
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class UserCreate(BaseModel):
