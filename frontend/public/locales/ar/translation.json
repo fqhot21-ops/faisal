@@ -1,0 +1,151 @@
+{
+  "common": {
+    "appName": "SecureVision AI",
+    "loading": "جاري التحميل...",
+    "submit": "إرسال",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "back": "رجوع",
+    "next": "التالي",
+    "search": "بحث",
+    "filter": "تصفية",
+    "export": "تصدير",
+    "downloadPDF": "تحميل تقرير PDF"
+  },
+  "nav": {
+    "dashboard": "لوحة التحكم",
+    "urlScanner": "فاحص الروابط",
+    "ipScanner": "فاحص IP",
+    "fileScanner": "فاحص الملفات",
+    "history": "السجل",
+    "adminPanel": "لوحة الإدارة",
+    "logout": "تسجيل الخروج",
+    "login": "تسجيل الدخول",
+    "register": "إنشاء حساب",
+    "getStarted": "ابدأ الآن"
+  },
+  "auth": {
+    "welcomeBack": "مرحباً بعودتك",
+    "createAccount": "إنشاء حساب",
+    "joinPlatform": "انضم إلى منصة SecureVision AI",
+    "loginToPlatform": "تسجيل الدخول إلى SecureVision AI",
+    "fullName": "الاسم الكامل",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "alreadyHaveAccount": "لديك حساب بالفعل؟",
+    "dontHaveAccount": "ليس لديك حساب؟",
+    "loggingIn": "جاري تسجيل الدخول...",
+    "creatingAccount": "جاري إنشاء الحساب...",
+    "loginSuccess": "تم تسجيل الدخول بنجاح",
+    "registerSuccess": "تم إنشاء الحساب بنجاح",
+    "loginFailed": "فشل تسجيل الدخول",
+    "registerFailed": "فشل إنشاء الحساب"
+  },
+  "landing": {
+    "hero": {
+      "title": "مدعوم بالذكاء الاصطناعي",
+      "subtitle": "كشف التهديدات السيبرانية",
+      "description": "استخبارات تهديدات متقدمة مدعومة بـ GPT-5.2. تحليل الروابط وعناوين IP والملفات في الوقت الفعلي مع أمان من الدرجة المؤسسية.",
+      "cta": "ابدأ الفحص"
+    },
+    "features": {
+      "urlAnalysis": {
+        "title": "تحليل تهديدات الروابط",
+        "description": "فحص الروابط في الوقت الفعلي مع تقييم المخاطر المدعوم بالذكاء الاصطناعي وشرح مفصل للتهديدات"
+      },
+      "ipCheck": {
+        "title": "فحص سمعة IP",
+        "description": "تحليل شامل لعناوين IP مع تتبع الموقع الجغرافي وكشف درجة إساءة الاستخدام"
+      },
+      "fileScanner": {
+        "title": "فاحص الملفات",
+        "description": "كشف البرامج الضارة المتقدم باستخدام تجزئة SHA-256 وتصنيف الذكاء الاصطناعي"
+      }
+    }
+  },
+  "dashboard": {
+    "welcome": "مرحباً",
+    "securityCenter": "مركز القيادة الأمنية",
+    "totalScans": "إجمالي عمليات الفحص",
+    "safe": "آمن",
+    "suspicious": "مشبوه",
+    "malicious": "ضار",
+    "threatDistribution": "توزيع التهديدات",
+    "recentActivity": "النشاط الأخير"
+  },
+  "scanner": {
+    "url": {
+      "title": "فاحص تهديدات الروابط",
+      "description": "تحليل الروابط للتهديدات الأمنية باستخدام الذكاء الاصطناعي",
+      "inputLabel": "الرابط للفحص",
+      "inputPlaceholder": "https://example.com",
+      "scanButton": "فحص الرابط",
+      "scanning": "جاري الفحص..."
+    },
+    "ip": {
+      "title": "فحص سمعة IP",
+      "description": "فحص سمعة عنوان IP والموقع الجغرافي",
+      "inputLabel": "عنوان IP",
+      "inputPlaceholder": "8.8.8.8",
+      "scanButton": "فحص IP",
+      "checking": "جاري الفحص..."
+    },
+    "file": {
+      "title": "فاحص الملفات",
+      "description": "رفع الملفات لكشف البرامج الضارة",
+      "inputLabel": "اختر ملف",
+      "scanButton": "فحص الملف",
+      "scanning": "جاري الفحص...",
+      "selected": "المحدد"
+    },
+    "result": {
+      "riskLevel": "مستوى المخاطر",
+      "riskScore": "درجة المخاطر",
+      "confidence": "الثقة",
+      "targetInfo": "معلومات الهدف",
+      "target": "الهدف",
+      "scanType": "نوع الفحص",
+      "analysis": "التحليل",
+      "additionalDetails": "تفاصيل إضافية"
+    }
+  },
+  "history": {
+    "title": "سجل عمليات الفحص",
+    "description": "عرض جميع عمليات الفحص السابقة",
+    "noScans": "لا توجد عمليات فحص بعد"
+  },
+  "admin": {
+    "title": "لوحة الإدارة",
+    "description": "نظرة عامة على النظام وإدارة المستخدمين",
+    "totalUsers": "إجمالي المستخدمين",
+    "totalScans": "إجمالي عمليات الفحص",
+    "scansToday": "عمليات الفحص اليوم",
+    "threatDistribution": "توزيع التهديدات على مستوى النظام",
+    "userManagement": "إدارة المستخدمين",
+    "joined": "انضم في",
+    "accessDenied": "تم رفض الوصول",
+    "adminRequired": "صلاحيات المسؤول مطلوبة"
+  },
+  "pdf": {
+    "reportTitle": "تقرير فحص أمني",
+    "scanDetails": "تفاصيل الفحص",
+    "scanId": "معرف الفحص",
+    "dateTime": "التاريخ والوقت",
+    "scanType": "نوع الفحص",
+    "target": "الهدف",
+    "threatAssessment": "تقييم التهديد",
+    "riskLevel": "مستوى المخاطر",
+    "riskScore": "درجة المخاطر",
+    "confidence": "الثقة",
+    "aiAnalysis": "تحليل التهديد بالذكاء الاصطناعي",
+    "recommendations": "التوصيات الأمنية",
+    "verificationInfo": "التحقق من التقرير",
+    "reportId": "معرف التقرير",
+    "verificationHash": "رمز التحقق",
+    "scanQR": "امسح رمز QR للتحقق من صحة التقرير",
+    "generatedBy": "تم إنشاؤه بواسطة",
+    "page": "صفحة"
+  }
+}
