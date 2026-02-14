@@ -42,10 +42,13 @@ const DashboardLayout = ({ children }) => {
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="p-6 border-b border-white/10">
-            <div className="flex items-center space-x-3">
-              <Shield className="w-8 h-8 text-cyber-cyan" strokeWidth={1.5} />
-              <span className="text-xl font-mono font-bold tracking-tighter">SecureVision</span>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-3 rtl:space-x-reverse">
+                <Shield className="w-8 h-8 text-cyber-cyan" strokeWidth={1.5} />
+                <span className="text-xl font-mono font-bold tracking-tighter">{t('common.appName')}</span>
+              </div>
             </div>
+            <LanguageSwitcher />
           </div>
 
           {/* Navigation */}
