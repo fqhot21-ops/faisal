@@ -12,6 +12,14 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+body[dir="rtl"] {
+    font-family: 'Cairo', 'Manrope', sans-serif;
+}
+
+body[dir="ltr"] {
+    font-family: 'Manrope', 'JetBrains Mono', sans-serif;
+}
+
 code {
     font-family:
         source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
