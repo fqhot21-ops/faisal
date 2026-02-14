@@ -109,9 +109,9 @@ const DashboardLayout = ({ children }) => {
         {/* Mobile Header */}
         <header className="lg:hidden bg-cyber-gray border-b border-white/10 p-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-3 rtl:space-x-reverse">
               <Shield className="w-6 h-6 text-cyber-cyan" strokeWidth={1.5} />
-              <span className="text-lg font-mono font-bold">SecureVision</span>
+              <span className="text-lg font-mono font-bold">{t('common.appName')}</span>
             </div>
             <Button
               data-testid="mobile-menu-btn"
