@@ -120,14 +120,14 @@ const ScanResult = ({ result }) => {
       {/* Details */}
       {result.details && Object.keys(result.details).length > 0 && (
         <div className="bg-cyber-gray/50 backdrop-blur-md border border-white/10 p-6">
-          <h3 className="text-lg font-mono font-bold mb-4">Additional Details</h3>
+          <h3 className="text-lg font-mono font-bold mb-4">{t('scanner.result.additionalDetails')}</h3>
           <div className="space-y-2">
             {Object.entries(result.details).map(([key, value]) => (
               <div key={key} className="flex justify-between py-2 border-b border-white/5">
                 <span className="text-sm font-mono uppercase text-gray-400">
                   {key.replace(/_/g, ' ')}
                 </span>
-                <span className="font-mono text-right ml-4">
+                <span className="font-mono text-right ml-4 rtl:ml-0 rtl:mr-4 ltr-content">
                   {typeof value === 'boolean' ? (value ? 'Yes' : 'No') : String(value)}
                 </span>
               </div>
