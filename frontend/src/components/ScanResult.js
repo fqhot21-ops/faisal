@@ -1,7 +1,15 @@
-import React from 'react';
-import { AlertCircle, CheckCircle2, AlertTriangle } from 'lucide-react';
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { AlertCircle, CheckCircle2, AlertTriangle, Download } from 'lucide-react';
+import { Button } from './ui/button';
+import axios from 'axios';
+import { useToast } from '../hooks/use-toast';
 
 const ScanResult = ({ result }) => {
+  const { t, i18n } = useTranslation();
+  const { toast } = useToast();
+  const [downloading, setDownloading] = useState(false);
+
   const getRiskColor = (level) => {
     if (level === 'Safe') return 'text-cyber-green';
     if (level === 'Suspicious') return 'text-cyber-yellow';
@@ -20,8 +28,51 @@ const ScanResult = ({ result }) => {
     return <AlertCircle className="w-12 h-12" strokeWidth={1.5} />;
   };
 
+  const downloadPDF = async () => {
+    setDownloading(true);
+    try {
+      const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
+      const response = await axios.get(
+        `${API_URL}/scan/${result.id}/pdf?language=${i18n.language}`,
+        { responseType: 'blob' }
+      );
+      
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `SecureVision_Report_${result.id.slice(0, 8)}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      
+      toast({ title: t('common.success'), description: 'PDF downloaded successfully' });
+    } catch (error) {
+      console.error('PDF download error:', error);
+      toast({ 
+        title: t('common.error'), 
+        description: 'Failed to download PDF',
+        variant: 'destructive'
+      });
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   return (
     <div className="space-y-6" data-testid="scan-result">
+      {/* Download PDF Button */}
+      <div className="flex justify-end">
+        <Button
+          onClick={downloadPDF}
+          disabled={downloading}
+          data-testid="download-pdf-btn"
+          className="font-mono uppercase bg-cyber-purple text-white hover:bg-cyber-purple/80"
+        >
+          <Download className="w-4 h-4 mr-2 rtl:mr-0 rtl:ml-2" strokeWidth={1.5} />
+          {downloading ? t('common.loading') : t('common.downloadPDF')}
+        </Button>
+      </div>
+
       {/* Risk Level Card */}
       <div className={`bg-cyber-gray/50 backdrop-blur-md border-2 p-8 text-center ${getRiskBg(result.risk_level)}`}>
         <div className={`${getRiskColor(result.risk_level)} mb-4 flex justify-center`}>
