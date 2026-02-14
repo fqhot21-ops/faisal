@@ -36,12 +36,12 @@ const LanguageSwitcher = () => {
   };
 
   return (
-    <div className=\"flex items-center space-x-2 rtl:space-x-reverse\" data-testid=\"language-switcher\">
-      <Globe className=\"w-4 h-4 text-gray-400\" strokeWidth={1.5} />
-      <div className=\"flex items-center border border-white/20 overflow-hidden\">
+    <div className="flex items-center space-x-2 rtl:space-x-reverse" data-testid="language-switcher">
+      <Globe className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
+      <div className="flex items-center border border-white/20 overflow-hidden">
         <button
           onClick={() => changeLanguage('en')}
-          data-testid=\"lang-en-btn\"
+          data-testid="lang-en-btn"
           className={`px-3 py-1 text-xs font-mono uppercase transition-colors ${
             currentLanguage === 'en'
               ? 'bg-cyber-cyan text-black font-bold'
@@ -50,10 +50,10 @@ const LanguageSwitcher = () => {
         >
           EN
         </button>
-        <div className=\"w-px h-4 bg-white/20\" />
+        <div className="w-px h-4 bg-white/20" />
         <button
           onClick={() => changeLanguage('ar')}
-          data-testid=\"lang-ar-btn\"
+          data-testid="lang-ar-btn"
           className={`px-3 py-1 text-xs font-mono uppercase transition-colors ${
             currentLanguage === 'ar'
               ? 'bg-cyber-cyan text-black font-bold'
