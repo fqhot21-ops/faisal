@@ -1,25 +1,28 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { Shield, LayoutDashboard, Link2, Globe, FileUp, History, Settings, LogOut, Menu, X, UserCog } from 'lucide-react';
 import { Button } from './ui/button';
+import LanguageSwitcher from './LanguageSwitcher';
 
 const DashboardLayout = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
+  const { t } = useTranslation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard', testid: 'nav-dashboard' },
-    { icon: Link2, label: 'URL Scanner', path: '/url-scanner', testid: 'nav-url-scanner' },
-    { icon: Globe, label: 'IP Scanner', path: '/ip-scanner', testid: 'nav-ip-scanner' },
-    { icon: FileUp, label: 'File Scanner', path: '/file-scanner', testid: 'nav-file-scanner' },
-    { icon: History, label: 'History', path: '/history', testid: 'nav-history' },
+    { icon: LayoutDashboard, label: t('nav.dashboard'), path: '/dashboard', testid: 'nav-dashboard' },
+    { icon: Link2, label: t('nav.urlScanner'), path: '/url-scanner', testid: 'nav-url-scanner' },
+    { icon: Globe, label: t('nav.ipScanner'), path: '/ip-scanner', testid: 'nav-ip-scanner' },
+    { icon: FileUp, label: t('nav.fileScanner'), path: '/file-scanner', testid: 'nav-file-scanner' },
+    { icon: History, label: t('nav.history'), path: '/history', testid: 'nav-history' },
   ];
 
   if (user?.role === 'admin') {
-    menuItems.push({ icon: UserCog, label: 'Admin Panel', path: '/admin', testid: 'nav-admin' });
+    menuItems.push({ icon: UserCog, label: t('nav.adminPanel'), path: '/admin', testid: 'nav-admin' });
   }
 
   const handleLogout = () => {
