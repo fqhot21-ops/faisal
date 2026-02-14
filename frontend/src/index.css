@@ -87,3 +87,24 @@ code {
         border-bottom-color: inherit;
     }
 }
+
+@keyframes scan {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100vh); }
+}
+
+.scan-line {
+    animation: scan 3s linear infinite;
+}
+
+.neon-glow {
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+}
+
+.neon-glow-green {
+    box-shadow: 0 0 20px rgba(0, 255, 148, 0.3);
+}
+
+.neon-glow-red {
+    box-shadow: 0 0 20px rgba(255, 46, 46, 0.3);
+}
