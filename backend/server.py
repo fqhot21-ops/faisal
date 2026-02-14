@@ -185,7 +185,8 @@ async def register(user_data: UserCreate):
     user = User(
         email=user_data.email,
         full_name=user_data.full_name,
-        role=user_data.role if user_data.role else "user"
+        role=user_data.role if user_data.role else "user",
+        preferred_language=user_data.preferred_language if user_data.preferred_language else "en"
     )
     
     user_doc = user.model_dump()
