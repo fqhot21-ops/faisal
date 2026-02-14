@@ -116,3 +116,26 @@ code {
 .neon-glow-red {
     box-shadow: 0 0 20px rgba(255, 46, 46, 0.3);
 }
+
+/* RTL Support */
+[dir="rtl"] {
+    direction: rtl;
+}
+
+[dir="rtl"] .font-mono {
+    font-family: 'Cairo', monospace;
+}
+
+[dir="ltr"] .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+}
+
+[dir="rtl"] .font-sans {
+    font-family: 'Cairo', sans-serif;
+}
+
+/* Keep numbers and codes LTR in RTL mode */
+[dir="rtl"] .ltr-content {
+    direction: ltr;
+    display: inline-block;
+}
