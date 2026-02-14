@@ -56,6 +56,7 @@ class UserCreate(BaseModel):
     password: str
     full_name: str
     role: Optional[str] = "user"
+    preferred_language: Optional[str] = "en"
 
 class UserLogin(BaseModel):
     email: EmailStr
