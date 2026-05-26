@@ -14,16 +14,14 @@ const AdminPanel = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadStats();
-  }, []);
-
-  const loadStats = async () => {
+  const loadStats = React.useCallback(async () => {
     try {
       const data = await getAdminStats();
       setStats(data);
     } catch (error) {
-      console.error('Failed to load admin stats:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to load admin stats:', error);
+      }
       toast({ 
         title: 'Error', 
         description: 'Failed to load admin data',
@@ -32,7 +30,11 @@ const AdminPanel = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    loadStats();
+  }, [loadStats]);
 
   const handleDeleteUser = async (userId) => {
     if (!window.confirm('Are you sure you want to delete this user?')) return;

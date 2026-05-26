@@ -1,14 +1,47 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Shield, Lock, Activity, TrendingUp } from 'lucide-react';
+import { Shield, Lock, Activity } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { motion } from 'framer-motion';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 
+// Extract animation configs as constants
+const HERO_ANIMATION = { opacity: 0, y: 20 };
+const HERO_ANIMATE = { opacity: 1, y: 0 };
+const HERO_TRANSITION = { duration: 0.8 };
+
+const getFeatureAnimation = (delay) => ({
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  transition: { delay: 0.2 * delay, duration: 0.6 }
+});
+
 const Landing = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+
+  // Memoize feature data
+  const features = useMemo(() => [
+    {
+      icon: <Shield className="w-8 h-8" strokeWidth={1.5} />,
+      title: t('landing.features.urlAnalysis.title'),
+      description: t('landing.features.urlAnalysis.description'),
+      color: 'cyan'
+    },
+    {
+      icon: <Activity className="w-8 h-8" strokeWidth={1.5} />,
+      title: t('landing.features.ipCheck.title'),
+      description: t('landing.features.ipCheck.description'),
+      color: 'purple'
+    },
+    {
+      icon: <Lock className="w-8 h-8" strokeWidth={1.5} />,
+      title: t('landing.features.fileScanner.title'),
+      description: t('landing.features.fileScanner.description'),
+      color: 'green'
+    }
+  ], [t]);
 
   return (
     <div className="min-h-screen bg-cyber-black relative overflow-hidden">
@@ -48,9 +81,9 @@ const Landing = () => {
         </nav>
 
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          initial={HERO_ANIMATION}
+          animate={HERO_ANIMATE}
+          transition={HERO_TRANSITION}
           className="mt-32 mb-20 text-center"
         >
           <h1 className="text-5xl md:text-7xl font-mono font-bold tracking-tighter leading-none mb-8">
@@ -73,39 +106,23 @@ const Landing = () => {
 
         {/* Features Grid */}
         <div className="grid md:grid-cols-3 gap-6 mt-20 pb-20">
-          {[
-            {
-              icon: <Shield className="w-8 h-8" strokeWidth={1.5} />,
-              title: t('landing.features.urlAnalysis.title'),
-              description: t('landing.features.urlAnalysis.description'),
-              color: 'cyan'
-            },
-            {
-              icon: <Activity className="w-8 h-8" strokeWidth={1.5} />,
-              title: t('landing.features.ipCheck.title'),
-              description: t('landing.features.ipCheck.description'),
-              color: 'purple'
-            },
-            {
-              icon: <Lock className="w-8 h-8" strokeWidth={1.5} />,
-              title: t('landing.features.fileScanner.title'),
-              description: t('landing.features.fileScanner.description'),
-              color: 'green'
-            }
-          ].map((feature, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 * idx, duration: 0.6 }}
-              data-testid={`feature-card-${idx}`}
-              className={`p-8 bg-cyber-gray/50 backdrop-blur-md border border-white/10 hover:border-cyber-${feature.color}/50 transition-all duration-300`}
-            >
-              <div className={`text-cyber-${feature.color} mb-4`}>{feature.icon}</div>
-              <h3 className="text-xl font-mono font-bold mb-3">{feature.title}</h3>
-              <p className="text-gray-400 font-sans">{feature.description}</p>
-            </motion.div>
-          ))}
+          {features.map((feature, idx) => {
+            const animationProps = getFeatureAnimation(idx);
+            return (
+              <motion.div
+                key={`feature-${feature.color}`}
+                initial={animationProps.initial}
+                animate={animationProps.animate}
+                transition={animationProps.transition}
+                data-testid={`feature-card-${idx}`}
+                className={`p-8 bg-cyber-gray/50 backdrop-blur-md border border-white/10 hover:border-cyber-${feature.color}/50 transition-all duration-300`}
+              >
+                <div className={`text-cyber-${feature.color} mb-4`}>{feature.icon}</div>
+                <h3 className="text-xl font-mono font-bold mb-3">{feature.title}</h3>
+                <p className="text-gray-400 font-sans">{feature.description}</p>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </div>

@@ -8,20 +8,22 @@ const History = () => {
   const [scans, setScans] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadHistory();
-  }, []);
-
-  const loadHistory = async () => {
+  const loadHistory = React.useCallback(async () => {
     try {
       const data = await getScanHistory();
       setScans(data);
     } catch (error) {
-      console.error('Failed to load history:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to load history:', error);
+      }
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadHistory();
+  }, [loadHistory]);
 
   const getRiskColor = (level) => {
     if (level === 'Safe') return 'text-cyber-green';

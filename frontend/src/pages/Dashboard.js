@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { getDashboardStats } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
-import { Shield, AlertTriangle, CheckCircle2, Clock, TrendingUp } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Shield, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import DashboardLayout from '../components/DashboardLayout';
+import StatCard from '../components/StatCard';
 import { format } from 'date-fns';
 
 const Dashboard = () => {
@@ -12,20 +12,22 @@ const Dashboard = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadStats();
-  }, []);
-
-  const loadStats = async () => {
+  const loadStats = useCallback(async () => {
     try {
       const data = await getDashboardStats();
       setStats(data);
     } catch (error) {
-      console.error('Failed to load stats:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to load stats:', error);
+      }
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadStats();
+  }, [loadStats]);
 
   if (loading) {
     return (
@@ -68,68 +70,36 @@ const Dashboard = () => {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            data-testid="total-scans-card"
-            className="bg-cyber-gray/50 backdrop-blur-md border border-white/10 p-6"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-mono uppercase tracking-wider text-gray-400 mb-2">Total Scans</p>
-                <p className="text-3xl font-mono font-bold">{stats?.total_scans || 0}</p>
-              </div>
-              <Shield className="w-8 h-8 text-cyber-cyan" strokeWidth={1.5} />
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            data-testid="safe-count-card"
-            className="bg-cyber-gray/50 backdrop-blur-md border border-cyber-green/30 p-6"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-mono uppercase tracking-wider text-gray-400 mb-2">Safe</p>
-                <p className="text-3xl font-mono font-bold text-cyber-green">{stats?.safe_count || 0}</p>
-              </div>
-              <CheckCircle2 className="w-8 h-8 text-cyber-green" strokeWidth={1.5} />
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            data-testid="suspicious-count-card"
-            className="bg-cyber-gray/50 backdrop-blur-md border border-cyber-yellow/30 p-6"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-mono uppercase tracking-wider text-gray-400 mb-2">Suspicious</p>
-                <p className="text-3xl font-mono font-bold text-cyber-yellow">{stats?.suspicious_count || 0}</p>
-              </div>
-              <AlertTriangle className="w-8 h-8 text-cyber-yellow" strokeWidth={1.5} />
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            data-testid="malicious-count-card"
-            className="bg-cyber-gray/50 backdrop-blur-md border border-cyber-red/30 p-6"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-mono uppercase tracking-wider text-gray-400 mb-2">Malicious</p>
-                <p className="text-3xl font-mono font-bold text-cyber-red">{stats?.malicious_count || 0}</p>
-              </div>
-              <AlertTriangle className="w-8 h-8 text-cyber-red" strokeWidth={1.5} />
-            </div>
-          </motion.div>
+          <StatCard
+            title="Total Scans"
+            value={stats?.total_scans || 0}
+            icon={Shield}
+            testId="total-scans-card"
+          />
+          <StatCard
+            title="Safe"
+            value={stats?.safe_count || 0}
+            icon={CheckCircle2}
+            color="green"
+            delay={0.1}
+            testId="safe-count-card"
+          />
+          <StatCard
+            title="Suspicious"
+            value={stats?.suspicious_count || 0}
+            icon={AlertTriangle}
+            color="yellow"
+            delay={0.2}
+            testId="suspicious-count-card"
+          />
+          <StatCard
+            title="Malicious"
+            value={stats?.malicious_count || 0}
+            icon={AlertTriangle}
+            color="red"
+            delay={0.3}
+            testId="malicious-count-card"
+          />
         </div>
 
         {/* Charts */}

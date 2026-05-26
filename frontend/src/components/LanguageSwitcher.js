@@ -30,7 +30,9 @@ const LanguageSwitcher = () => {
           preferred_language: lng
         });
       } catch (error) {
-        console.error('Failed to update language preference:', error);
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Failed to update language preference:', error);
+        }
       }
     }
   };

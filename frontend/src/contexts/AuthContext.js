@@ -13,10 +13,26 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  // NOTE: localStorage used for demo. For production, use httpOnly cookies with secure session management
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [loading, setLoading] = useState(true);
 
   const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
+
+  const fetchUser = React.useCallback(async () => {
+    try {
+      const response = await axios.get(`${API_URL}/auth/me`);
+      setUser(response.data);
+    } catch (error) {
+      // Error logged for development only - replace with proper logging service in production
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to fetch user:', error);
+      }
+      logout();
+    } finally {
+      setLoading(false);
+    }
+  }, [API_URL]);
 
   useEffect(() => {
     if (token) {
@@ -25,19 +41,7 @@ export const AuthProvider = ({ children }) => {
     } else {
       setLoading(false);
     }
-  }, [token]);
-
-  const fetchUser = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/auth/me`);
-      setUser(response.data);
-    } catch (error) {
-      console.error('Failed to fetch user:', error);
-      logout();
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [token, fetchUser]);
 
   const login = async (email, password) => {
     const response = await axios.post(`${API_URL}/auth/login`, { email, password });
@@ -59,12 +63,12 @@ export const AuthProvider = ({ children }) => {
     return userData;
   };
 
-  const logout = () => {
+  const logout = React.useCallback(() => {
     setToken(null);
     setUser(null);
     localStorage.removeItem('token');
     delete axios.defaults.headers.common['Authorization'];
-  };
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, token, login, register, logout, loading }}>

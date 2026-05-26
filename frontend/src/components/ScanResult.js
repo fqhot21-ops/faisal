@@ -47,7 +47,9 @@ const ScanResult = ({ result }) => {
       
       toast({ title: t('common.success'), description: 'PDF downloaded successfully' });
     } catch (error) {
-      console.error('PDF download error:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('PDF download error:', error);
+      }
       toast({ 
         title: t('common.error'), 
         description: 'Failed to download PDF',

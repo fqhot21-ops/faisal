@@ -1,34 +1,52 @@
+"""
+PDF Report Generation Service for SecureVision AI
+Generates bilingual (English/Arabic) PDF reports with RTL support
+"""
 from reportlab.lib import colors
-from reportlab.lib.pagesizes import letter, A4
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.units import inch
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
-from reportlab.pdfgen import canvas
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.lib.enums import TA_RIGHT, TA_LEFT, TA_CENTER
+from reportlab.lib.enums import TA_RIGHT, TA_LEFT
 from io import BytesIO
+from typing import Dict, List, Optional, Tuple, Any
 import qrcode
 import hashlib
 from datetime import datetime
 from arabic_reshaper import reshape
 from bidi.algorithm import get_display
-import os
 
-# RTL text helper for Arabic
-def arabic_text(text):
-    """Convert Arabic text to display format with proper RTL"""
+
+def arabic_text(text: str) -> str:
+    """
+    Convert Arabic text to display format with proper RTL.
+    
+    Args:
+        text: Input text in Arabic
+        
+    Returns:
+        Properly formatted Arabic text for display
+    """
     if not text:
         return ""
     try:
         reshaped_text = reshape(text)
         bidi_text = get_display(reshaped_text)
         return bidi_text
-    except:
+    except Exception:
         return text
 
-def generate_qr_code(data):
-    """Generate QR code as image"""
+
+def generate_qr_code(data: str) -> BytesIO:
+    """
+    Generate QR code as image buffer.
+    
+    Args:
+        data: Data to encode in QR code
+        
+    Returns:
+        BytesIO buffer containing PNG image
+    """
     qr = qrcode.QRCode(version=1, box_size=10, border=4)
     qr.add_data(data)
     qr.make(fit=True)
@@ -39,61 +57,36 @@ def generate_qr_code(data):
     buffer.seek(0)
     return buffer
 
-def generate_verification_hash(scan_id, target, timestamp):
-    """Generate verification hash for report"""
+
+def generate_verification_hash(scan_id: str, target: str, timestamp: str) -> str:
+    """
+    Generate verification hash for report authenticity.
+    
+    Args:
+        scan_id: Unique scan identifier
+        target: Scan target (URL/IP/file)
+        timestamp: Timestamp of scan
+        
+    Returns:
+        16-character verification hash
+    """
     data = f"{scan_id}{target}{timestamp}"
     return hashlib.sha256(data.encode()).hexdigest()[:16]
 
-def create_pdf_report(scan_data, language='en', translations=None):
+
+def get_styles(is_rtl: bool) -> Tuple[ParagraphStyle, ParagraphStyle, ParagraphStyle]:
     """
-    Generate PDF report in specified language with proper RTL/LTR formatting
+    Create PDF paragraph styles based on language direction.
     
     Args:
-        scan_data: Dictionary containing scan information
-        language: 'en' or 'ar'
-        translations: Dictionary of translated strings
+        is_rtl: True for RTL (Arabic), False for LTR (English)
+        
+    Returns:
+        Tuple of (title_style, heading_style, normal_style)
     """
-    buffer = BytesIO()
-    
-    # Page setup
-    is_rtl = language == 'ar'
-    doc = SimpleDocTemplate(buffer, pagesize=letter,
-                           rightMargin=72, leftMargin=72,
-                           topMargin=72, bottomMargin=18)
-    
-    # Content container
-    story = []
-    
-    # Default translations
-    if not translations:
-        translations = {
-            'reportTitle': 'Security Scan Report' if language == 'en' else 'تقرير فحص أمني',
-            'scanDetails': 'Scan Details' if language == 'en' else 'تفاصيل الفحص',
-            'scanId': 'Scan ID' if language == 'en' else 'معرف الفحص',
-            'dateTime': 'Date & Time' if language == 'en' else 'التاريخ والوقت',
-            'scanType': 'Scan Type' if language == 'en' else 'نوع الفحص',
-            'target': 'Target' if language == 'en' else 'الهدف',
-            'threatAssessment': 'Threat Assessment' if language == 'en' else 'تقييم التهديد',
-            'riskLevel': 'Risk Level' if language == 'en' else 'مستوى المخاطر',
-            'riskScore': 'Risk Score' if language == 'en' else 'درجة المخاطر',
-            'confidence': 'Confidence' if language == 'en' else 'الثقة',
-            'aiAnalysis': 'AI Threat Analysis' if language == 'en' else 'تحليل التهديد بالذكاء الاصطناعي',
-            'recommendations': 'Security Recommendations' if language == 'en' else 'التوصيات الأمنية',
-            'verificationInfo': 'Report Verification' if language == 'en' else 'التحقق من التقرير',
-            'reportId': 'Report ID' if language == 'en' else 'معرف التقرير',
-            'verificationHash': 'Verification Hash' if language == 'en' else 'رمز التحقق',
-            'scanQR': 'Scan QR code to verify report authenticity' if language == 'en' else 'امسح رمز QR للتحقق من صحة التقرير',
-            'generatedBy': 'Generated by' if language == 'en' else 'تم إنشاؤه بواسطة',
-            'page': 'Page' if language == 'en' else 'صفحة',
-            'Safe': 'Safe' if language == 'en' else 'آمن',
-            'Suspicious': 'Suspicious' if language == 'en' else 'مشبوه',
-            'Malicious': 'Malicious' if language == 'en' else 'ضار',
-        }
-    
-    # Styles
+    from reportlab.lib.styles import getSampleStyleSheet
     styles = getSampleStyleSheet()
     
-    # Title style
     title_style = ParagraphStyle(
         'CustomTitle',
         parent=styles['Heading1'],
@@ -103,7 +96,6 @@ def create_pdf_report(scan_data, language='en', translations=None):
         alignment=TA_RIGHT if is_rtl else TA_LEFT,
     )
     
-    # Heading style
     heading_style = ParagraphStyle(
         'CustomHeading',
         parent=styles['Heading2'],
@@ -113,13 +105,59 @@ def create_pdf_report(scan_data, language='en', translations=None):
         alignment=TA_RIGHT if is_rtl else TA_LEFT,
     )
     
-    # Normal text style
     normal_style = ParagraphStyle(
         'CustomNormal',
         parent=styles['Normal'],
         fontSize=11,
         alignment=TA_RIGHT if is_rtl else TA_LEFT,
     )
+    
+    return title_style, heading_style, normal_style
+
+
+def create_table(data: List[List[str]], is_rtl: bool, col_widths: Optional[List] = None) -> Table:
+    """
+    Create styled table for PDF report.
+    
+    Args:
+        data: 2D list of table data
+        is_rtl: True for RTL layout
+        col_widths: Optional column widths
+        
+    Returns:
+        Styled Table object
+    """
+    if col_widths is None:
+        col_widths = [2*inch, 4*inch]
+    
+    table = Table(data, colWidths=col_widths)
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#121214')),
+        ('TEXTCOLOR', (0, 0), (0, -1), colors.HexColor('#00F0FF')),
+        ('TEXTCOLOR', (1, 0), (1, -1), colors.white),
+        ('ALIGN', (0, 0), (-1, -1), 'RIGHT' if is_rtl else 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+        ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#27272A'))
+    ]))
+    
+    return table
+
+
+def build_header_section(story: List, scan_data: Dict, translations: Dict, 
+                        is_rtl: bool, styles: Tuple) -> None:
+    """
+    Add header section to PDF story.
+    
+    Args:
+        story: PDF story list to append to
+        scan_data: Scan information dictionary
+        translations: Translation strings
+        is_rtl: True for RTL layout
+        styles: Tuple of paragraph styles
+    """
+    title_style, heading_style, _ = styles
     
     # App Name Header
     app_name = "SecureVision AI"
@@ -132,8 +170,22 @@ def create_pdf_report(scan_data, language='en', translations=None):
     report_title = arabic_text(translations['reportTitle']) if is_rtl else translations['reportTitle']
     story.append(Paragraph(report_title, heading_style))
     story.append(Spacer(1, 20))
+
+
+def build_scan_details_section(story: List, scan_data: Dict, translations: Dict,
+                               is_rtl: bool, styles: Tuple) -> None:
+    """
+    Add scan details section to PDF story.
     
-    # Scan Details Section
+    Args:
+        story: PDF story list to append to
+        scan_data: Scan information dictionary
+        translations: Translation strings
+        is_rtl: True for RTL layout
+        styles: Tuple of paragraph styles
+    """
+    _, heading_style, _ = styles
+    
     details_title = arabic_text(translations['scanDetails']) if is_rtl else translations['scanDetails']
     story.append(Paragraph(details_title, heading_style))
     
@@ -149,25 +201,27 @@ def create_pdf_report(scan_data, language='en', translations=None):
     ]
     
     if is_rtl:
-        scan_info = [[arabic_text(str(cell)) if isinstance(cell, str) and i == 0 else str(cell) 
-                     for i, cell in enumerate(row[::-1])] for row in scan_info]
+        scan_info = [[row[1], row[0]] for row in scan_info]
     
-    scan_table = Table(scan_info, colWidths=[2*inch, 4*inch])
-    scan_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#121214')),
-        ('TEXTCOLOR', (0, 0), (0, -1), colors.HexColor('#00F0FF')),
-        ('TEXTCOLOR', (1, 0), (1, -1), colors.white),
-        ('ALIGN', (0, 0), (-1, -1), 'RIGHT' if is_rtl else 'LEFT'),
-        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
-        ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#27272A'))
-    ]))
-    
-    story.append(scan_table)
+    table = create_table(scan_info, is_rtl)
+    story.append(table)
     story.append(Spacer(1, 20))
+
+
+def build_threat_assessment_section(story: List, scan_data: Dict, translations: Dict,
+                                    is_rtl: bool, styles: Tuple) -> None:
+    """
+    Add threat assessment section to PDF story.
     
-    # Threat Assessment
+    Args:
+        story: PDF story list to append to
+        scan_data: Scan information dictionary
+        translations: Translation strings
+        is_rtl: True for RTL layout
+        styles: Tuple of paragraph styles
+    """
+    _, heading_style, _ = styles
+    
     threat_title = arabic_text(translations['threatAssessment']) if is_rtl else translations['threatAssessment']
     story.append(Paragraph(threat_title, heading_style))
     
@@ -186,22 +240,25 @@ def create_pdf_report(scan_data, language='en', translations=None):
     if is_rtl:
         threat_info = [[row[1], row[0]] for row in threat_info]
     
-    threat_table = Table(threat_info, colWidths=[2*inch, 4*inch])
-    threat_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#121214')),
-        ('TEXTCOLOR', (0, 0), (0, -1), colors.HexColor('#FFE600')),
-        ('TEXTCOLOR', (1, 0), (1, -1), colors.white),
-        ('ALIGN', (0, 0), (-1, -1), 'RIGHT' if is_rtl else 'LEFT'),
-        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, -1), 11),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
-        ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#27272A'))
-    ]))
-    
-    story.append(threat_table)
+    table = create_table(threat_info, is_rtl)
+    story.append(table)
     story.append(Spacer(1, 20))
+
+
+def build_analysis_section(story: List, scan_data: Dict, translations: Dict,
+                          is_rtl: bool, styles: Tuple) -> None:
+    """
+    Add AI analysis section to PDF story.
     
-    # AI Analysis
+    Args:
+        story: PDF story list to append to
+        scan_data: Scan information dictionary
+        translations: Translation strings
+        is_rtl: True for RTL layout
+        styles: Tuple of paragraph styles
+    """
+    _, heading_style, normal_style = styles
+    
     analysis_title = arabic_text(translations['aiAnalysis']) if is_rtl else translations['aiAnalysis']
     story.append(Paragraph(analysis_title, heading_style))
     
@@ -211,8 +268,23 @@ def create_pdf_report(scan_data, language='en', translations=None):
     
     story.append(Paragraph(explanation, normal_style))
     story.append(Spacer(1, 20))
+
+
+def build_recommendations_section(story: List, scan_data: Dict, translations: Dict,
+                                 is_rtl: bool, styles: Tuple, language: str) -> None:
+    """
+    Add security recommendations section to PDF story.
     
-    # Recommendations
+    Args:
+        story: PDF story list to append to
+        scan_data: Scan information dictionary
+        translations: Translation strings
+        is_rtl: True for RTL layout
+        styles: Tuple of paragraph styles
+        language: Language code ('en' or 'ar')
+    """
+    _, heading_style, normal_style = styles
+    
     rec_title = arabic_text(translations['recommendations']) if is_rtl else translations['recommendations']
     story.append(Paragraph(rec_title, heading_style))
     
@@ -223,8 +295,22 @@ def create_pdf_report(scan_data, language='en', translations=None):
         story.append(Spacer(1, 6))
     
     story.append(Spacer(1, 20))
+
+
+def build_verification_section(story: List, scan_data: Dict, translations: Dict,
+                               is_rtl: bool, styles: Tuple) -> None:
+    """
+    Add report verification section to PDF story.
     
-    # Verification Section
+    Args:
+        story: PDF story list to append to
+        scan_data: Scan information dictionary
+        translations: Translation strings
+        is_rtl: True for RTL layout
+        styles: Tuple of paragraph styles
+    """
+    _, heading_style, normal_style = styles
+    
     verify_title = arabic_text(translations['verificationInfo']) if is_rtl else translations['verificationInfo']
     story.append(Paragraph(verify_title, heading_style))
     
@@ -250,32 +336,137 @@ def create_pdf_report(scan_data, language='en', translations=None):
     if is_rtl:
         verify_info = [[row[1], row[0]] for row in verify_info]
     
-    verify_table = Table(verify_info, colWidths=[2*inch, 4*inch])
-    verify_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#121214')),
-        ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
-        ('ALIGN', (0, 0), (-1, -1), 'RIGHT' if is_rtl else 'LEFT'),
-        ('FONTNAME', (0, 0), (-1, -1), 'Courier'),
-        ('FONTSIZE', (0, 0), (-1, -1), 9),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
-        ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#27272A'))
-    ]))
-    
-    story.append(verify_table)
+    table = create_table(verify_info, is_rtl)
+    story.append(table)
     story.append(Spacer(1, 10))
     story.append(qr_img)
     
     qr_desc = arabic_text(translations['scanQR']) if is_rtl else translations['scanQR']
     story.append(Paragraph(qr_desc, normal_style))
+
+
+def get_default_translations(language: str) -> Dict[str, str]:
+    """
+    Get default translations for given language.
+    
+    Args:
+        language: Language code ('en' or 'ar')
+        
+    Returns:
+        Dictionary of translation strings
+    """
+    translations_en = {
+        'reportTitle': 'Security Scan Report',
+        'scanDetails': 'Scan Details',
+        'scanId': 'Scan ID',
+        'dateTime': 'Date & Time',
+        'scanType': 'Scan Type',
+        'target': 'Target',
+        'threatAssessment': 'Threat Assessment',
+        'riskLevel': 'Risk Level',
+        'riskScore': 'Risk Score',
+        'confidence': 'Confidence',
+        'aiAnalysis': 'AI Threat Analysis',
+        'recommendations': 'Security Recommendations',
+        'verificationInfo': 'Report Verification',
+        'reportId': 'Report ID',
+        'verificationHash': 'Verification Hash',
+        'scanQR': 'Scan QR code to verify report authenticity',
+        'generatedBy': 'Generated by',
+        'page': 'Page',
+        'Safe': 'Safe',
+        'Suspicious': 'Suspicious',
+        'Malicious': 'Malicious',
+    }
+    
+    translations_ar = {
+        'reportTitle': 'تقرير فحص أمني',
+        'scanDetails': 'تفاصيل الفحص',
+        'scanId': 'معرف الفحص',
+        'dateTime': 'التاريخ والوقت',
+        'scanType': 'نوع الفحص',
+        'target': 'الهدف',
+        'threatAssessment': 'تقييم التهديد',
+        'riskLevel': 'مستوى المخاطر',
+        'riskScore': 'درجة المخاطر',
+        'confidence': 'الثقة',
+        'aiAnalysis': 'تحليل التهديد بالذكاء الاصطناعي',
+        'recommendations': 'التوصيات الأمنية',
+        'verificationInfo': 'التحقق من التقرير',
+        'reportId': 'معرف التقرير',
+        'verificationHash': 'رمز التحقق',
+        'scanQR': 'امسح رمز QR للتحقق من صحة التقرير',
+        'generatedBy': 'تم إنشاؤه بواسطة',
+        'page': 'صفحة',
+        'Safe': 'آمن',
+        'Suspicious': 'مشبوه',
+        'Malicious': 'ضار',
+    }
+    
+    return translations_ar if language == 'ar' else translations_en
+
+
+def create_pdf_report(scan_data: Dict[str, Any], language: str = 'en', 
+                     translations: Optional[Dict[str, str]] = None) -> BytesIO:
+    """
+    Generate PDF report in specified language with proper RTL/LTR formatting.
+    
+    Args:
+        scan_data: Dictionary containing scan information
+        language: 'en' or 'ar'
+        translations: Optional dictionary of translated strings
+    
+    Returns:
+        BytesIO buffer containing the generated PDF
+    """
+    buffer = BytesIO()
+    is_rtl = language == 'ar'
+    
+    # Setup document
+    doc = SimpleDocTemplate(
+        buffer, 
+        pagesize=letter,
+        rightMargin=72, 
+        leftMargin=72,
+        topMargin=72, 
+        bottomMargin=18
+    )
+    
+    # Get translations
+    if not translations:
+        translations = get_default_translations(language)
+    
+    # Get styles
+    styles = get_styles(is_rtl)
+    
+    # Build PDF story
+    story = []
+    
+    build_header_section(story, scan_data, translations, is_rtl, styles)
+    build_scan_details_section(story, scan_data, translations, is_rtl, styles)
+    build_threat_assessment_section(story, scan_data, translations, is_rtl, styles)
+    build_analysis_section(story, scan_data, translations, is_rtl, styles)
+    build_recommendations_section(story, scan_data, translations, is_rtl, styles, language)
+    build_verification_section(story, scan_data, translations, is_rtl, styles)
     
     # Build PDF
     doc.build(story)
-    
     buffer.seek(0)
+    
     return buffer
 
-def get_recommendations(risk_level, language='en'):
-    """Get security recommendations based on risk level"""
+
+def get_recommendations(risk_level: str, language: str = 'en') -> List[str]:
+    """
+    Get security recommendations based on risk level.
+    
+    Args:
+        risk_level: Risk level ('Safe', 'Suspicious', 'Malicious')
+        language: Language code ('en' or 'ar')
+        
+    Returns:
+        List of recommendation strings
+    """
     recommendations_en = {
         'Safe': [
             'Continue monitoring this target regularly',
