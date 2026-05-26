@@ -34,7 +34,10 @@ const ScanResult = ({ result }) => {
       const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
       const response = await axios.get(
         `${API_URL}/scan/${result.id}/pdf?language=${i18n.language}`,
-        { responseType: 'blob' }
+        { 
+          responseType: 'blob',
+          withCredentials: true  // Send cookies for auth
+        }
       );
       
       const url = window.URL.createObjectURL(new Blob([response.data]));

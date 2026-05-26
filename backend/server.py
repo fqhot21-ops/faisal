@@ -1,6 +1,6 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Depends, UploadFile, File, status
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, UploadFile, File, status, Response, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, JSONResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -31,9 +31,14 @@ db = client[os.environ['DB_NAME']]
 
 # Security
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-security = HTTPBearer()
+security = HTTPBearer(auto_error=False)
 JWT_SECRET = os.environ.get('JWT_SECRET', 'securevision_secret')
 EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY')
+
+# Cookie settings
+COOKIE_NAME = "auth_token"
+COOKIE_MAX_AGE = 7 * 24 * 60 * 60  # 7 days in seconds
+IS_PRODUCTION = os.environ.get('ENVIRONMENT', 'development') == 'production'
 
 # Create the main app
 app = FastAPI()
@@ -109,6 +114,7 @@ def verify_password(plain: str, hashed: str) -> bool:
     return pwd_context.verify(plain, hashed)
 
 def create_jwt(user_id: str, email: str, role: str) -> str:
+    """Create JWT token with user information"""
     payload = {
         "user_id": user_id,
         "email": email,
@@ -117,17 +123,57 @@ def create_jwt(user_id: str, email: str, role: str) -> str:
     }
     return jwt.encode(payload, JWT_SECRET, algorithm="HS256")
 
-async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    try:
+def set_auth_cookie(response: Response, token: str) -> None:
+    """Set httpOnly authentication cookie"""
+    response.set_cookie(
+        key=COOKIE_NAME,
+        value=token,
+        max_age=COOKIE_MAX_AGE,
+        httponly=True,
+        secure=IS_PRODUCTION,  # Only over HTTPS in production
+        samesite="lax",  # CSRF protection
+        path="/"
+    )
+
+async def get_current_user(
+    request: Request,
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security)
+) -> User:
+    """
+    Get current user from httpOnly cookie or Authorization header (fallback).
+    Cookie takes precedence for security.
+    """
+    token = None
+    
+    # Try to get token from cookie first (preferred)
+    token = request.cookies.get(COOKIE_NAME)
+    
+    # Fallback to Authorization header for backward compatibility
+    if not token and credentials:
         token = credentials.credentials
+    
+    if not token:
+        raise HTTPException(
+            status_code=401, 
+            detail="Authentication required. Please log in."
+        )
+    
+    try:
         payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
         user_id = payload.get("user_id")
+        
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Invalid token payload")
+        
         user_data = await db.users.find_one({"id": user_id}, {"_id": 0})
+        
         if not user_data:
             raise HTTPException(status_code=401, detail="User not found")
+        
         return User(**user_data)
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
+        
+    except JWTError as e:
+        raise HTTPException(status_code=401, detail=f"Invalid or expired token")
 
 def calculate_url_entropy(url: str) -> float:
     if not url:
@@ -176,8 +222,9 @@ async def analyze_with_ai(prompt: str, scan_type: str) -> dict:
         return {"prediction": "Suspicious", "confidence": 0.5, "explanation": "Unable to complete AI analysis"}
 
 # Auth Endpoints
-@api_router.post("/auth/register", response_model=TokenResponse)
-async def register(user_data: UserCreate):
+@api_router.post("/auth/register")
+async def register(user_data: UserCreate, response: Response):
+    """Register new user and set httpOnly cookie"""
     existing = await db.users.find_one({"email": user_data.email}, {"_id": 0})
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -196,10 +243,20 @@ async def register(user_data: UserCreate):
     await db.users.insert_one(user_doc)
     
     token = create_jwt(user.id, user.email, user.role)
-    return TokenResponse(token=token, user=user)
+    
+    # Set httpOnly cookie
+    set_auth_cookie(response, token)
+    
+    # Return user data and token (token for backward compatibility)
+    return {
+        "user": user.model_dump(),
+        "token": token,  # Still returned for backward compatibility
+        "message": "Registered successfully. Cookie set."
+    }
 
-@api_router.post("/auth/login", response_model=TokenResponse)
-async def login(credentials: UserLogin):
+@api_router.post("/auth/login")
+async def login(credentials: UserLogin, response: Response):
+    """Login user and set httpOnly cookie"""
     user_data = await db.users.find_one({"email": credentials.email}, {"_id": 0})
     if not user_data:
         raise HTTPException(status_code=401, detail="Invalid credentials")
@@ -209,7 +266,28 @@ async def login(credentials: UserLogin):
     
     user = User(**{k: v for k, v in user_data.items() if k != "password"})
     token = create_jwt(user.id, user.email, user.role)
-    return TokenResponse(token=token, user=user)
+    
+    # Set httpOnly cookie
+    set_auth_cookie(response, token)
+    
+    # Return user data and token (token for backward compatibility)
+    return {
+        "user": user.model_dump(),
+        "token": token,  # Still returned for backward compatibility
+        "message": "Logged in successfully. Cookie set."
+    }
+
+@api_router.post("/auth/logout")
+async def logout(response: Response):
+    """Logout user by clearing the httpOnly cookie"""
+    response.delete_cookie(
+        key=COOKIE_NAME,
+        path="/",
+        httponly=True,
+        secure=IS_PRODUCTION,
+        samesite="lax"
+    )
+    return {"message": "Logged out successfully"}
 
 @api_router.get("/auth/me", response_model=User)
 async def get_me(current_user: User = Depends(get_current_user)):

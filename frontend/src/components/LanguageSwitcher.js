@@ -28,6 +28,8 @@ const LanguageSwitcher = () => {
         const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
         await axios.put(`${API_URL}/user/language`, {
           preferred_language: lng
+        }, {
+          withCredentials: true  // Ensure cookies are sent
         });
       } catch (error) {
         if (process.env.NODE_ENV === 'development') {

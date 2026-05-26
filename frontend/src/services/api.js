@@ -1,5 +1,8 @@
 import axios from 'axios';
 
+// Configure axios to send cookies with every request
+axios.defaults.withCredentials = true;
+
 const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
 
 export const scanURL = async (url) => {
