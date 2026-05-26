@@ -433,7 +433,21 @@ Provide analysis in JSON: {{"prediction": "Safe|Suspicious|Malicious", "confiden
 # Dashboard Endpoints
 @api_router.get("/dashboard/stats", response_model=DashboardStats)
 async def get_dashboard_stats(current_user: User = Depends(get_current_user)):
-    scans = await db.scans.find({"user_id": current_user.id}, {"_id": 0}).to_list(1000)
+    # Optimized: Only fetch required fields, limit to last 100 scans
+    scans = await db.scans.find(
+        {"user_id": current_user.id},
+        {
+            "_id": 0,
+            "id": 1,
+            "risk_level": 1,
+            "timestamp": 1,
+            "scan_type": 1,
+            "target": 1,
+            "risk_score": 1,
+            "confidence": 1,
+            "explanation": 1
+        }
+    ).sort("timestamp", -1).limit(100).to_list(100)
     
     for scan in scans:
         if isinstance(scan.get('timestamp'), str):
@@ -456,8 +470,17 @@ async def get_dashboard_stats(current_user: User = Depends(get_current_user)):
     )
 
 @api_router.get("/scans/history", response_model=List[ScanResult])
-async def get_scan_history(current_user: User = Depends(get_current_user)):
-    scans = await db.scans.find({"user_id": current_user.id}, {"_id": 0}).to_list(1000)
+async def get_scan_history(
+    skip: int = 0,
+    limit: int = 50,
+    current_user: User = Depends(get_current_user)
+):
+    """Get scan history with pagination support"""
+    # Optimized: Added pagination, sorting, limit to max 100 per request
+    scans = await db.scans.find(
+        {"user_id": current_user.id},
+        {"_id": 0}
+    ).sort("timestamp", -1).skip(skip).limit(min(limit, 100)).to_list(min(limit, 100))
     
     for scan in scans:
         if isinstance(scan.get('timestamp'), str):
@@ -472,29 +495,49 @@ async def get_admin_stats(current_user: User = Depends(get_current_user)):
     if current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Admin access required")
     
-    users = await db.users.find({}, {"_id": 0, "password": 0}).to_list(1000)
+    # Optimized: Pagination for users, limit to 100
+    users = await db.users.find(
+        {},
+        {"_id": 0, "password": 0}
+    ).limit(100).to_list(100)
+    
     for user in users:
         if isinstance(user.get('created_at'), str):
             user['created_at'] = datetime.fromisoformat(user['created_at'])
     user_objects = [User(**u) for u in users]
     
-    all_scans = await db.scans.find({}, {"_id": 0}).to_list(10000)
-    for scan in all_scans:
-        if isinstance(scan.get('timestamp'), str):
-            scan['timestamp'] = datetime.fromisoformat(scan['timestamp'])
-    
+    # Optimized: Use aggregation pipeline for statistics instead of fetching all records
     today = datetime.now(timezone.utc).date()
-    scans_today = sum(1 for s in all_scans if s['timestamp'].date() == today)
+    today_start = datetime.combine(today, datetime.min.time()).replace(tzinfo=timezone.utc)
     
+    # Count total scans
+    total_scans = await db.scans.count_documents({})
+    
+    # Count scans today
+    scans_today = await db.scans.count_documents({
+        "timestamp": {"$gte": today_start.isoformat()}
+    })
+    
+    # Get threat distribution using aggregation
+    threat_pipeline = [
+        {"$group": {
+            "_id": "$risk_level",
+            "count": {"$sum": 1}
+        }}
+    ]
+    threat_results = await db.scans.aggregate(threat_pipeline).to_list(10)
     threat_dist = {
-        "Safe": sum(1 for s in all_scans if s['risk_level'] == "Safe"),
-        "Suspicious": sum(1 for s in all_scans if s['risk_level'] == "Suspicious"),
-        "Malicious": sum(1 for s in all_scans if s['risk_level'] == "Malicious")
+        "Safe": 0,
+        "Suspicious": 0,
+        "Malicious": 0
     }
+    for result in threat_results:
+        if result["_id"] in threat_dist:
+            threat_dist[result["_id"]] = result["count"]
     
     return AdminStats(
         total_users=len(user_objects),
-        total_scans=len(all_scans),
+        total_scans=total_scans,
         scans_today=scans_today,
         threat_distribution=threat_dist,
         user_list=user_objects
