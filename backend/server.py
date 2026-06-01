@@ -450,13 +450,15 @@ async def get_dashboard_stats(current_user: User = Depends(get_current_user)):
         {
             "_id": 0,
             "id": 1,
+            "user_id": 1,
             "risk_level": 1,
             "timestamp": 1,
             "scan_type": 1,
             "target": 1,
             "risk_score": 1,
             "confidence": 1,
-            "explanation": 1
+            "explanation": 1,
+            "details": 1
         }
     ).sort("timestamp", -1).limit(100).to_list(100)
     
