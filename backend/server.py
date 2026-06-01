@@ -293,6 +293,17 @@ async def logout(response: Response):
 async def get_me(current_user: User = Depends(get_current_user)):
     return current_user
 
+# Health Check Endpoint
+@api_router.get("/health")
+async def health_check():
+    """Health check endpoint for monitoring"""
+    return {
+        "status": "healthy",
+        "environment": os.environ.get("ENVIRONMENT", "development"),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "version": "1.0.0"
+    }
+
 # Scan Endpoints
 @api_router.post("/scan/url", response_model=ScanResult)
 async def scan_url(request: URLScanRequest, current_user: User = Depends(get_current_user)):

@@ -309,6 +309,7 @@ def build_verification_section(story: List, scan_data: Dict, translations: Dict,
         is_rtl: True for RTL layout
         styles: Tuple of paragraph styles
     """
+    import os
     _, heading_style, normal_style = styles
     
     verify_title = arabic_text(translations['verificationInfo']) if is_rtl else translations['verificationInfo']
@@ -321,8 +322,9 @@ def build_verification_section(story: List, scan_data: Dict, translations: Dict,
         scan_data.get('timestamp', '')
     )
     
-    # QR Code
-    qr_data = f"https://securevision.ai/verify/{scan_data.get('id', '')}"
+    # QR Code with dynamic URL from environment
+    app_url = os.environ.get('APP_URL', 'https://securevision.ai')
+    qr_data = f"{app_url}/verify/{scan_data.get('id', '')}"
     qr_buffer = generate_qr_code(qr_data)
     qr_img = Image(qr_buffer, width=1.5*inch, height=1.5*inch)
     
