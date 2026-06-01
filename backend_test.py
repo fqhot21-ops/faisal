@@ -6,7 +6,7 @@ import os
 import tempfile
 
 class SecureVisionAPITester:
-    def __init__(self, base_url="https://threat-intel-hub-16.preview.emergentagent.com"):
+    def __init__(self, base_url="https://ai-threat-check-1.preview.emergentagent.com"):
         self.base_url = base_url
         self.token = None
         self.admin_token = None
